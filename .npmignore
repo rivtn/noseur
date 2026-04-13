@@ -1,0 +1,12 @@
+
+.vscode/
+node_modules/
+showcase/
+src/
+tests/
+.babelrc
+dist/
+*.tar
+*.tgz
+*.zip
+*.DS_Store
