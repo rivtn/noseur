@@ -24,21 +24,22 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ronuse/noseur.git"
+    "url": "git+https://github.com/rivtn/noseur.git"
   },
   "keywords": [
     "react",
     "component",
     "ui",
     "theme",
-    "ronuse"
+    "ronuse",
+    "rivtn"
   ],
   "author": "Adewale Azeez",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ronuse/noseur/issues"
+    "url": "https://github.com/rivtn/noseur/issues"
   },
-  "homepage": "https://ronuse.github.io/noseur",
+  "homepage": "https://rivtn.github.io/noseur",
   "dependencies": {
     "@types/chart.js": "^4.0.1",
     "@types/react": "^19.2.14",

@@ -31,7 +31,7 @@
     "clean:start": {
       "patterns": [
         "../_src",
-        "../ronuse-noseur-*.tgz"
+        "../rivtn-noseur-*.tgz"
       ],
       "extensions": "ts,tsx,scss,tgz"
     }
