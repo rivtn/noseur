@@ -1,0 +1,26 @@
+
+
+/* Paginator */
+
+.noseur-paginator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.noseur-paginator-rc {
+    margin-left: auto;
+}
+
+.noseur-paginator-lc {
+    margin-right: auto;
+}
+
+.noseur-paginator-props-value {
+    display: contents;
+}
+
+/* Chart */
+.noseur-chart {
+    position: relative;
+}

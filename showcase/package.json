@@ -1,0 +1,60 @@
+{
+  "name": "showcase",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@rivtn/noseur": "file:../rivtn-noseur-1.0.0.tgz",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.12.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "ajv": "^8.18.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "watch": "npx -y npm-watch",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "upgrade": "npx -y npm-check-updates -u",
+    "build:noseur": "cd ../ & npm run pack & cd showcase",
+    "clean:start": "sh -c 'rm -Rf node_modules/.cache; cp -r ../dist/* ./node_modules/noseur/dist/' & npm start"
+  },
+  "watch": {
+    "clean:start": {
+      "patterns": [
+        "../_src",
+        "../rivtn-noseur-*.tgz"
+      ],
+      "extensions": "ts,tsx,scss,tgz"
+    }
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  }
+}
