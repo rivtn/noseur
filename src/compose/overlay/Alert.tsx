@@ -205,7 +205,7 @@ class AlertComponent<T> extends React.Component<AlertProps<T>, AlertState> {
 
 }
 
-export interface AlertInterface<T> {
+export interface AlertInterface<T = DialogProps> {
     hide: (onUnMount?: Function) => void,
     destroy: (onUnMount?: Function) => void,
     doneLoading: (onMount?: Function) => void,

@@ -188,6 +188,7 @@ export class DataComponent<T, P extends DataProps<T, D>, S extends DataState<D>,
             return (<div key={row} ref={(r) => {
                 if (!this.rowContentElementMaps[row]) {
                     this.setState({ rowsContent: {} });
+                    return;
                 }
                 this.rowContentElementMaps[row].contentElement = r;
             }} className="noseur-data-row-content">{rowsContents[row]}</div>);
@@ -205,7 +206,7 @@ export class DataComponent<T, P extends DataProps<T, D>, S extends DataState<D>,
                 delete this.rowContentElementMaps[row]
                 continue;
             }
-            if (rowContentElementMap.expanded) continue;
+            if (!rowContentElementMap || rowContentElementMap.expanded) continue;
             const contentHeight = DOMHelper.calculateHeight(rowContentElementMap.contentElement);
             const rowStyle = DOMHelper.getElementStyle(rowContentElementMap.rowElement);
             const rowHeight = DOMHelper.sanitizeStyleValue(rowStyle.height);
