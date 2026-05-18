@@ -25,7 +25,7 @@
     "eject": "react-scripts eject",
     "upgrade": "npx -y npm-check-updates -u",
     "build:noseur": "cd ../ & npm run pack & cd showcase",
-    "clean:start": "sh -c 'rm -Rf node_modules/.cache; cp -r ../dist/* ./node_modules/noseur/dist/' & npm start"
+    "clean:start": "sh -c 'rm -Rf node_modules/.cache; cp -r ../dist/* ./node_modules/@rivtn/noseur/dist/' & npm start"
   },
   "watch": {
     "clean:start": {

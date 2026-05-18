@@ -48,7 +48,7 @@ interface PopoverState {
 class PopoverComponent extends React.Component<PopoverProps, PopoverState> {
 
     public static defaultProps: Partial<PopoverProps> = {
-        transition: Transition.FLIP_X,
+        transition: Transition.NONE,
         outsideClickLogic: "elemental",
         transitionTimeout: { enter: 130, exit: 110 },
         pointingArrowClassName: "noseur-popover-arrow",

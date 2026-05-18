@@ -13,6 +13,13 @@ export const ColorHelper = {
         return na;
     },
 
+    hexToRgb(hex: string): { r: number; g: number; b: number; a: number; } {
+        const reg = hex.length < 6 ? "\\w" : "\\w\\w";
+        const parts = hex.match(new RegExp(reg, "g"))?.map((x: string) => parseInt(x.repeat(2 / x.length), 16))!;
+        const rgb: any = { r: parts[0], g: parts[1], b: parts[2] };
+        return rgb;
+    },
+
     hexToRgba(hex: string): { r: number; g: number; b: number; a: number; } {
         const reg = hex.length < 6 ? "\\w" : "\\w\\w";
         const parts = hex.match(new RegExp(reg, "g"))?.map((x: string) => parseInt(x.repeat(2 / x.length), 16))!;
@@ -25,12 +32,12 @@ export const ColorHelper = {
         const r = rgb.r / 255;
         const g = rgb.g / 255;
         const b = rgb.b / 255;
-    
+
         const k = +(1 - Math.max(r, g, b));
         const c = +((1 - r - k) / (1 - k) || 0);
         const m = +((1 - g - k) / (1 - k) || 0);
         const y = +((1 - b - k) / (1 - k) || 0);
-    
+
         return { c: (c * 1000), m: (m * 1000), y: (y * 1000), k: (k * 1000) };
     },
 
@@ -61,7 +68,7 @@ export const ColorHelper = {
         }
     },
 
-    hexToHsb(hex: string)  {
+    hexToHsb(hex: string) {
         return ColorHelper.rgbToHsb(ColorHelper.hexToRgba(hex));
     },
 
@@ -184,5 +191,25 @@ export const ColorHelper = {
             b: Math.min(100, Math.max(0, hsb.b))
         };
     },
+
+    /**
+     * Generates a color similar to the input rgb.
+     * @param {string} rgb - The target color (e.g., { r: 121, g: 3, b: 20})
+     * @param {number} deviationAmount - Deviation amount (0 to 1, default 0.1)
+     */
+    similarColor(rgb: { r: number; g: number; b: number; }, deviationAmount: number = 0.1) {
+        let { r, g, b } = rgb;
+
+        const jitter = (val: number) => {
+            const range = 255 * deviationAmount;
+            const noise = (Math.random() * range * 2) - range;
+            return Math.min(255, Math.max(0, Math.round(val + noise)));
+        };
+        const newR = jitter(r);
+        const newG = jitter(g);
+        const newB = jitter(b);
+
+        return { r: newR, g: newG, b: newB };
+    }
 
 }

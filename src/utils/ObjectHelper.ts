@@ -164,8 +164,13 @@ export const ObjectHelper = {
                 continue;
             }
             if (openedTemplate && ch === suffix) {
+                const actualTemplateValue = templateValue;
+                const defaultValSepIndex = templateValue.indexOf(":");
+                if (defaultValSepIndex > -1) {
+                    templateValue = actualTemplateValue.substring(0, defaultValSepIndex);
+                }
                 value += subValueMap[templateValue]
-                    || (options.relativeExpansion ? `${chopped}${prefix}${templateValue}${suffix}` : "");
+                    ?? (options.relativeExpansion ? `${chopped}${prefix}${actualTemplateValue}${suffix}` : "");
                 subValueMap = valueMap;
                 openedTemplate = false;
                 templateValue = "";

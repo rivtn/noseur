@@ -208,7 +208,7 @@ function App() {
                 <div style={{ margin: 30 }}>
                     {/* <ColorPicker /> */}
                 </div>
-                {/* <div style={{ margin: 30 }}>
+                <div style={{ margin: 30 }}>
                     <ColorMap hex={states.csHex1} />
                     <ColorMap hex={states.csHex1} style={{ marginTop: 15 }} hideAlpha />
                 </div>
@@ -2152,7 +2152,7 @@ function App() {
                     <br />
                     <br />
                 </div>
-                <DateTimePicker type={ComponentRenderType.POPOVER} showTime manageRef={(e: any) => refs.current["popover-date01"] = e} /> */}
+                <DateTimePicker type={ComponentRenderType.POPOVER} showTime manageRef={(e: any) => refs.current["popover-date01"] = e} />
 
             </div>
         );

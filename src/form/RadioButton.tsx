@@ -26,6 +26,8 @@ export interface RadioButtonProps extends ComponentBaseProps<NoseurFormElement |
     checkedIndex: NoseurNummber;
     checkStates: NoseurCheckState[];
     defaultCheckedIndex: NoseurNummber;
+
+    onChecked?: (checked: boolean) => void | boolean;
 }
 
 interface RadioButtonState {
@@ -71,6 +73,12 @@ class RadioButtonComponent extends React.Component<RadioButtonProps, RadioButton
         this.getFirstCheckedValue = this.getFirstCheckedValue.bind(this);
     }
 
+    componentDidMount(): void {
+        if (this.props.defaultChecked) {
+            __noseurGlobalRadioButtonReporter[this.props.name] = this.onCheckBoxClicked;
+        }
+    }
+
     componentDidUpdate(prevProps: Readonly<RadioButtonProps>): void {
         if ((prevProps.checked !== undefined && prevProps.checked !== this.props.checked)
             || (prevProps.checkedIndex !== undefined && prevProps.checkedIndex !== this.props.checkedIndex)) {
@@ -99,8 +107,11 @@ class RadioButtonComponent extends React.Component<RadioButtonProps, RadioButton
         if (this.props.readOnly) return;
         let newCheckedIndex = this.getCheckStatesIndex() + 1;
         if (newCheckedIndex >= this.props.checkStates.length) newCheckedIndex = 0;
-        if (this.props.onChange && event) {
             const checkState = this.props.checkStates[newCheckedIndex];
+        if (this.props.onChecked?.(checkState?.checked) === true && checkState?.checked === true) {
+            return;
+        }
+        if (this.props.onChange && event) {
             this.props.onChange({
                 ...event,
                 checkState,
@@ -190,7 +201,7 @@ class RadioButtonComponent extends React.Component<RadioButtonProps, RadioButton
             'noseur-fl-d-c': this.props.alignLabel === Alignment.BOTTOM,
             'noseur-disabled': !this.props.noStyle && this.props.disabled,
         });
-        const eventProps = ObjectHelper.extractEventProps(this.props);
+        const eventProps = ObjectHelper.extractEventProps(this.props, ["onChecked"]);
         const props = {
             className,
             ...eventProps,
@@ -203,6 +214,6 @@ class RadioButtonComponent extends React.Component<RadioButtonProps, RadioButton
 
 }
 
-export const RadioButton  = ({ ref, ...props }: Partial<RadioButtonProps>) => (
+export const RadioButton = ({ ref, ...props }: Partial<RadioButtonProps>) => (
     <RadioButtonComponent {...props} forwardRef={ref} />
 );
