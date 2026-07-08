@@ -284,6 +284,7 @@
 .noseur-messages>div {
 	z-index: 1005;
 	display: flex;
+    width: max-content;
 	flex-direction: column;
 }
 

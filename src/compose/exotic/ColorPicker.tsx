@@ -1,10 +1,19 @@
 
 import "../Composed.css";
 import React from "react";
-import { ColorEventHandler } from "../../constants/Types";
+import { Color, ColorEventHandler, NoseurObject } from "../../constants/Types";
 import { ComponentBaseProps, ComponentRenderType } from "../../core/ComponentBaseProps";
-import { DialogManageRef, DialogProps } from "../../overlay/Dialog";
-import { PopoverManageRef, PopoverProps } from "../../overlay/Popover";
+import { Dialog, DialogManageRef, DialogProps } from "../../overlay/Dialog";
+import { Popover, PopoverManageRef, PopoverProps } from "../../overlay/Popover";
+import { ObjectHelper } from "../../utils/ObjectHelper";
+import { Classname } from "../../utils/Classname";
+import { ColorMap } from "../../form/ColorMap";
+import { ColorSlider, ColorSliderGradient } from "./ColorSlider";
+import { FormControl } from "../form/FormControl";
+import { ColorPalette } from "../../form/ColorPalette";
+import { TextInput } from "../../form/Input";
+import { Orientation } from "../../constants/Orientation";
+import { ColorHelper } from "../../utils/ColorHelper";
 
 export enum ColorPickerLayoutElement {
     DashElement = "[d]",
@@ -28,7 +37,7 @@ export enum ColorPickerLayoutElement {
 }
 
 export enum ColorPickerLayout {
-    
+
 }
 
 export type ColorPickerAttributesRelays = {
@@ -37,28 +46,39 @@ export type ColorPickerAttributesRelays = {
 }
 
 export interface ColorPickerManageRef {
-
+    reset: () => void;
+    dialogManageRef: () => DialogManageRef | null;
+    popoverManageRef: () => PopoverManageRef | null;
+    toggle: (event: Event, target?: HTMLElement) => void;
 }
 
 export interface ColorPickerProps extends ComponentBaseProps<HTMLDivElement, ColorPickerManageRef, ColorPickerAttributesRelays> {
+    colors: Color;
+    alpha: number;
     autoFocus: boolean;
     modalVisible: boolean;
+    selectedColors: Color[];
     type: ComponentRenderType;
 
     onSelectColor: ColorEventHandler;
 }
 
 interface ColorPickerState {
+    alpha: number;
     modalVisible: boolean;
+    selectedColors: Color[];
 }
 
 class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPickerState> {
 
     public static defaultProps: Partial<ColorPickerProps> = {
+        alpha: 1,
     };
 
     state: ColorPickerState = {
+        alpha: this.props.alpha,
         modalVisible: this.props.modalVisible,
+        selectedColors: this.props.selectedColors ?? [this.props.colors ?? ColorHelper.hexToColor("#000000")]
     };
 
     dialogManageRef: DialogManageRef | null = {} as any;
@@ -66,12 +86,21 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
 
     constructor(props: ColorPickerProps) {
         super(props);
-        
+
         this.toggle = this.toggle.bind(this);
         this.toggleMapComponent = this.toggleMapComponent.bind(this);
         this.togglePalleteElement = this.togglePalleteElement.bind(this);
         this.reportOnSelectColor = this.reportOnSelectColor.bind(this);
         this.performColorControlAction = this.performColorControlAction.bind(this);
+    }
+
+    componentDidMount() {
+        ObjectHelper.resolveManageRef(this, {
+            toggle: this.toggle,
+            reset: () => alert("RESET"),
+            dialogManageRef: () => this.dialogManageRef,
+            popoverManageRef: () => this.popoverManageRef,
+        });
     }
 
     toggle(event: Event, target?: HTMLElement) {
@@ -108,18 +137,18 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
         }
     }
 
-    reportOnSelectColor(hex?: string) {
-        if (!this.props.onSelectColor) return;
-        
-        throw new Error("Implement report on select color " + hex);
-    }
-
     toggleMapComponent() {
-        
+
     }
 
     togglePalleteElement() {
-        
+
+    }
+
+    reportOnSelectColor(color: Color) {
+        const previousColor = this.state.selectedColors?.[0];
+        this.setState({ selectedColors: [color] });
+        this.props.onSelectColor?.({ color, previousColor });
     }
 
     /*buildLayoutElements(controlActionMap: NoseurObject<(e?: any) => void>) {
@@ -383,10 +412,44 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
             }
         });
         return layoutElements;
-    }
+    }*/
 
-    buildLayout(layoutElements: NoseurObject<NoseurElement>, controlActionMap: NoseurObject<(e?: any) => void>) {
-        let layout = this.props.layout;
+    // TODO able to support multiple colors with each dot on slider map and on the pallete
+    buildLayout(/*layoutElements: NoseurObject<NoseurElement>, controlActionMap*/_: NoseurObject<(e?: any) => void>) {
+        const selectedColor = this.state.selectedColors?.[0];
+
+        return (<div style={{ display: "flex", width: "fit-content", flexDirection: "column" }}>
+            <ColorMap style={{ width: "100%" }} mapWidth={"100%"} mapHeight={150} hex={selectedColor?.hex} />
+            <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.RAINBOW_HORIZONTAL} onSelectColor={async ({ color }) => {
+                color.alpha = this.state.alpha;
+                this.reportOnSelectColor(color);
+            }} />
+            <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.TRANSPARENT_HORIZONTAL} primaryColor={selectedColor.hex} onSelectColor={async ({ color }) => {
+                this.reportOnSelectColor({ ...this.state.selectedColors?.[0], alpha: color.alpha });
+            }} />
+            <div style={{ display: "flex", width: "100%", marginTop: 5 }}>
+                <FormControl isFieldset label={<span style={{ fontSize: 12 }}>Hex</span>}>
+                    <TextInput style={{ flex: 1, width: 60, padding: "7px 5px", fontSize: 14 }} defaultValue={selectedColor.hex} />
+                </FormControl>
+                <FormControl isFieldset label={<span style={{ fontSize: 12 }}>R</span>}>
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                </FormControl>
+                <FormControl isFieldset label={<span style={{ fontSize: 12 }}>G</span>}>
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                </FormControl>
+                <FormControl isFieldset label={<span style={{ fontSize: 12 }}>B</span>}>
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                </FormControl>
+                <FormControl isFieldset label={<span style={{ fontSize: 12 }}>A</span>}>
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"100"} />
+                </FormControl>
+            </div>
+            <ColorPalette style={{ width: "100%", marginTop: 10 }} grid={10} gtcSize={"1fr"} row={4} size={20} gap={3} palette={"Default"} attrsRelay={{ tile: { style: { borderRadius: 2 } } }} onSelectColor={({ color }) => {
+                color.alpha = this.state.alpha;
+                this.reportOnSelectColor(color);
+            }} />
+        </div>);
+        /*let layout = this.props.layout;
         if (this.state.activeMode === DateTimePickerMode.YEAR) layout = this.props.yearModeLayout;
         if (this.state.activeMode === DateTimePickerMode.MONTH) layout = this.props.monthModeLayout;
         const rows = layout.split(DateTimePickerLayoutElement.RowDividerElement);
@@ -410,14 +473,14 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
                     return this.buildLayoutElement(options, formattedDate, layoutElements, DateTimePickerLayoutElement.MainLayoutElement, column, className, this.props.layoutTemplate, controlActionMap, index);
                 })}
             </div>);
-        });
+        });*/
     }
 
     render() {
         const controlActionMap: NoseurObject<(e?: any) => void> = {
             MapToggleElement: this.toggleMapComponent,
             PalleteToggleElement: this.togglePalleteElement,
-            SelectColor: (e) => { this.reportOnSelectColor(); this.toggle(e); },
+            //SelectColor: (e) => { this.reportOnSelectColor(); this.toggle(e); },
             ClearElement: () => this.performColorControlAction(ColorPickerLayoutElement.ClearElement),
             CancelElement: () => this.performColorControlAction(ColorPickerLayoutElement.CancelElement),
             ChooseElement: () => this.performColorControlAction(ColorPickerLayoutElement.ChooseElement),
@@ -425,8 +488,8 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
             ColorFormatDropdownElement: () => this.performColorControlAction(ColorPickerLayoutElement.ColorFormatDropdownElement),
             ClearTransparentColorElement: () => this.performColorControlAction(ColorPickerLayoutElement.ClearTransparentColorElement),
         };
-        const layoutElements = this.buildLayoutElements(controlActionMap);
-        const layoutPanel = this.buildLayout(layoutElements, controlActionMap);
+        //const layoutElements = this.buildLayoutElements(controlActionMap);
+        const layoutPanel = this.buildLayout(/*layoutElements, */controlActionMap);
         const className = Classname.build("noseur-color-picker", {
             "noseur-color-picker-modal": this.props.type === ComponentRenderType.MODAL,
             "noseur-color-picker-inline": this.props.type === ComponentRenderType.INLINE,
@@ -441,7 +504,7 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
 
         switch (this.props.type) {
             case ComponentRenderType.MODAL:
-                return (<Dialog notClosable {...this.props.attrsRelay?.dialog} ref={ref} className={className} style={this.props.style} manageRef={(m) => this.dialogManageRef = m}
+                return (<Dialog notClosable={false} {...this.props.attrsRelay?.dialog} ref={ref} className={className} style={this.props.style} manageRef={(m) => this.dialogManageRef = m}
                     visible={this.state.modalVisible} onHide={() => this.setState({ modalVisible: false })}>
                     {layoutPanel}
                 </Dialog>);
@@ -454,10 +517,12 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
                     {layoutPanel}
                 </div>);
         }
-    };*/
+    };
 
 }
 
-export const ColorPicker  = ({ ref, ...props }: Partial<ColorPickerProps>) => (
+export const ColorPicker = ({ ref, ...props }: Partial<ColorPickerProps>) => (
     <ColorPickerComponent {...props} forwardRef={ref} />
 );
+
+// https://alabsi91.github.io/reanimated-color-picker/

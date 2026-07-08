@@ -10,8 +10,10 @@ export type ColorPaletteAttributesRelays = {
 }
 
 export interface ColorPaletteProps extends ComponentBaseProps<HTMLDivElement, {}, ColorPaletteAttributesRelays> {
+    row: number;
     grid: number;
     defaultValue: string;
+    gtcSize: number | string;
     palette: string[] | string;
     gap: number | { row: number; column: number; };
     size: number | { width: number; height: number; };
@@ -63,18 +65,23 @@ class ColorPaletteComponent extends React.Component<ColorPaletteProps, ColorPale
     }
 
     render() {
-        const width = (typeof this.props.size === "number" ? this.props.size : this.props.size.width);
+        let palette = this.state.palette;
+        const width = (!!this.props.gtcSize ? this.props.gtcSize : (typeof this.props.size === "number" ? this.props.size : this.props.size.width));
         const className = Classname.build("noseur-color-palette", this.props.className);
         const style: React.CSSProperties = {
             ...(this.props.style ?? {}),
-            gridTemplateColumns: Array(Math.min(this.state.palette.length, this.props.grid)).fill(`${width}px`).join(" "),
+            gridTemplateColumns: Array(Math.min(this.state.palette.length, this.props.grid)).fill(typeof width === "number" ? `${width}px` : width).join(" "),
             columnGap: (typeof this.props.gap !== "number" ? this.props.gap.column : undefined),
             rowGap: (typeof this.props.gap !== "number" ? this.props.gap.row : undefined),
             gap: (typeof this.props.gap === "number" ? this.props.gap : undefined),
         };
 
+        if (this.props.row) {
+            palette = palette.slice(0, (this.props.grid * this.props.row));
+        }
+
         return (<div className={className} style={style} id={this.props.id} key={this.props.key}>
-            {this.state.palette.map((color) => this.renderTile(color))}
+            {palette.map((color) => this.renderTile(color))}
         </div>);
     };
 
@@ -104,7 +111,7 @@ export class ColorPaletteRegistry {
 
 }
 
-export const ColorPalette  = ({ ref, ...props }: Partial<ColorPaletteProps>) => (
+export const ColorPalette = ({ ref, ...props }: Partial<ColorPaletteProps>) => (
     <ColorPaletteComponent {...props} forwardRef={ref} />
 );
 

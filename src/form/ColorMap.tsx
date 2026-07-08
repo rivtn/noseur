@@ -24,6 +24,8 @@ export interface ColorMapProps extends ComponentBaseProps<HTMLDivElement, ColorM
     alignAlpha: Alignment;
     alignSlider: Alignment;
     indicator: NoseurElement;
+    mapWidth: number | string;
+    mapHeight: number | string;
 }
 
 interface ColorMapState {
@@ -33,6 +35,8 @@ interface ColorMapState {
 class ColorMapComponent extends React.Component<ColorMapProps, ColorMapState> {
 
     public static defaultProps: Partial<ColorMapProps> = {
+        mapWidth: 180,
+        mapHeight: 180,
         hex: "#000000",
     };
 
@@ -57,8 +61,8 @@ class ColorMapComponent extends React.Component<ColorMapProps, ColorMapState> {
 
         const className = Classname.build("noseur-color-map-map", this.props.attrsRelay?.map?.className);
         const style: React.CSSProperties = {
-            width: this.props.attrsRelay?.map?.size ?? 180,
-            height: this.props.attrsRelay?.map?.size ?? 180,
+            width: this.props.attrsRelay?.map?.size ?? this.props.mapWidth,
+            height: this.props.attrsRelay?.map?.size ?? this.props.mapHeight,
             ...(this.props.attrsRelay?.map?.style ?? {}),
             backgroundColor: this.state.hex,
         };

@@ -75,7 +75,7 @@ function App() {
     function render() {
         return (
             <div className="Apps" style={{ background: "white" }}>
-                <div style={{ margin: 30 }}>
+                {/* <div style={{ margin: 30 }}>
                     <GridView column={2} gap={1}>
                         <div style={{ width: "100%", height: 10, background: "red" }}>
 
@@ -90,7 +90,7 @@ function App() {
 
                         </div>
                     </GridView>
-                </div>
+                </div> */}
                 {/* <div style={{ margin: 30 }}>
                     <Calendar />
                 </div> */}
@@ -206,7 +206,46 @@ function App() {
                     </div>
                 </div> */}
                 <div style={{ margin: 30 }}>
-                    {/* <ColorPicker /> */}
+                    <Button text="Modal ColorPicker" onClick={(e: any) => refs.current["modal-colorpicker1"].toggle(e)} />
+                    <ColorPicker type={ComponentRenderType.MODAL}  manageRef={(e: any) => refs.current["modal-colorpicker1"] = e} />
+                    <br /><br />
+                    <br /><br />
+                    <Button text="Popover ColorPicker" onClick={(e: any) => refs.current["popover-colorpicker1"].toggle(e)} />
+                    <ColorPicker type={ComponentRenderType.POPOVER}  manageRef={(e: any) => refs.current["popover-colorpicker1"] = e} onSelectColor={(e) => {
+                        console.log("SELECTED", e)
+                    }} />
+                    <br/><br/>
+                    <br/><br/>
+                    <ColorPicker />
+
+                    {/* <div style={{ display: "flex", border: "1px solid red", width: "fit-content", flexDirection: "column" }}>
+                        <ColorMap style={{ width: "100%" }} mapWidth={"100%"} mapHeight={150} hex={states.csHex1} />
+                        <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.RAINBOW_HORIZONTAL} onSelectColor={async ({ color }) => {
+                            setStates({ ...states, csHex1: color.hex, });
+                        }} />
+                        <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.TRANSPARENT_HORIZONTAL} primaryColor={states.csHex1} />
+                        <div style={{ display: "flex", width: "100%", marginTop: 5 }}>
+                            <FormControl isFieldset label={<span style={{ fontSize: 12 }}>Hex</span>}>
+                                <TextInput style={{ flex: 1, width: 60, padding: "7px 5px", fontSize: 14 }} defaultValue={states.csHex1} />
+                            </FormControl>
+                            <FormControl isFieldset label={<span style={{ fontSize: 12 }}>R</span>}>
+                                <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                            </FormControl>
+                            <FormControl isFieldset label={<span style={{ fontSize: 12 }}>G</span>}>
+                                <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                            </FormControl>
+                            <FormControl isFieldset label={<span style={{ fontSize: 12 }}>B</span>}>
+                                <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                            </FormControl>
+                            <FormControl isFieldset label={<span style={{ fontSize: 12 }}>A</span>}>
+                                <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"100"} />
+                            </FormControl>
+                        </div>
+                        <ColorPalette style={{ width: "100%", marginTop: 10 }} grid={10} gtcSize={"1fr"} row={4} size={20} gap={3} palette={"Default"} attrsRelay={{ tile: { style: { borderRadius: 2 } } }} onSelectColor={(e) => console.log("THE EVENT", e.color)} />
+                    </div> */}
+
+                    margin: 0px 7px;
+                    padding: 0px 2px;
                 </div>
                 <div style={{ margin: 30 }}>
                     <ColorMap hex={states.csHex1} />

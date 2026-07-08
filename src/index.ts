@@ -78,10 +78,12 @@ export * from "./layout/GridView";
 
 // sensor
 export * from "./sensor/DragSensor";
+export * from "./sensor/ResizeSensor";
 export * from "./sensor/ViewportSensor";
 
 // hooks
 export * from "./hooks/useSubscription";
 export * from "./hooks/useSearchParams";
+export * from "./hooks/useScreenDimension";
 
 import "./core/noseur.css";

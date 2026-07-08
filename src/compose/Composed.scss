@@ -443,3 +443,30 @@ input.noseur-fctrl-cc {
     padding: 0px 7px;
     margin: 0px 15px -6px 15px;
 }
+
+/* ColorPicker */
+
+.noseur-color-picker-modal,
+.noseur-color-picker-inline,
+.noseur-color-picker-popover {
+    padding: 15px;
+    border-radius: 7px;
+    border: 1px solid var(--noseurSchemeDataBorderColor, rgb(145, 144, 144));
+}
+
+.noseur-color-picker-modal {
+    width: auto !important;
+    padding: 0px !important;
+}
+
+.noseur-color-picker-modal .noseur-color-picker-layout-column {
+    flex: 1;
+}
+
+.noseur-color-picker-popover {
+    background: var(--containerBackground, white);
+}
+
+.noseur-color-picker-popover {
+    margin: 15px;
+}

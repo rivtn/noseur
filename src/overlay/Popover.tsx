@@ -223,7 +223,7 @@ class PopoverComponent extends React.Component<PopoverProps, PopoverState> {
 
     rePosition(event?: Event, cb?: () => void) {
         if (!this.state.visible) return;
-        this.target = event?.target ?? event?.currentTarget ?? this.target;
+        this.target = this.target ?? event?.target ?? event?.currentTarget ?? this.target;
         if (!this.target || !this.target.getBoundingClientRect) return;
         DOMHelper.absolutePositionRelatively(this.internalElement, this.target, this.props.positional);
         const targetOffset = DOMHelper.getElementOffset(this.target);
@@ -295,6 +295,6 @@ class PopoverComponent extends React.Component<PopoverProps, PopoverState> {
 
 }
 
-export const Popover  = ({ ref, ...props }: Partial<PopoverProps>) => (
+export const Popover = ({ ref, ...props }: Partial<PopoverProps>) => (
     <PopoverComponent {...props} forwardRef={ref} />
 );
