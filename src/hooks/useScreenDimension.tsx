@@ -16,6 +16,7 @@ export function useScreenDimension() {
                 setScreenDimension({ width, height });
             }
             ObserverHandler.observe("resize", documentResizeListener);
+            documentResizeListener();
         }
 
         return () => {

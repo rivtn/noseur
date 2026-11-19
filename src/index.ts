@@ -38,6 +38,9 @@ export * from "./compose/form/ComposedPassword";
 // misc
 export * from "./misc/ProgressBar";
 
+// elements
+export * from "./elements/Image";
+
 // presentation
 export * from "./presentation/Chart";
 export * from "./presentation/Paginator";

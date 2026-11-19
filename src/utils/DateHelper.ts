@@ -416,4 +416,80 @@ export const DateHelper = {
         return result;
     },
 
+    getDateBreakdown(targetDate: Date, referenceDate: Date = new Date()) {
+        const isPast = targetDate.getTime() < referenceDate.getTime();
+        const start = isPast ? targetDate : referenceDate;
+        const end = isPast ? referenceDate : targetDate;
+
+        let years = end.getFullYear() - start.getFullYear();
+        let months = end.getMonth() - start.getMonth();
+        let days = end.getDate() - start.getDate();
+        let hours = end.getHours() - start.getHours();
+        let minutes = end.getMinutes() - start.getMinutes();
+        let seconds = end.getSeconds() - start.getSeconds();
+
+        if (seconds < 0) {
+            seconds += 60;
+            minutes--;
+        }
+        if (minutes < 0) {
+            minutes += 60;
+            hours--;
+        }
+        if (hours < 0) {
+            hours += 24;
+            days--;
+        }
+        if (days < 0) {
+            const previousMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+            days += previousMonth.getDate();
+            months--;
+        }
+        if (months < 0) {
+            months += 12;
+            years--;
+        }
+
+        return { years, months, days, hours, minutes, seconds };
+    },
+
+    dateToFineValue(date: Date) {
+        const now = new Date();
+        const secondsPast = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (secondsPast < 1) {
+            return "Just now";
+        }
+
+        const intervals: { label: string; seconds: number }[] = [
+            { label: "year", seconds: 31536000 },
+            { label: "month", seconds: 2592000 },
+            { label: "day", seconds: 86400 },
+            { label: "hour", seconds: 3600 },
+            { label: "minute", seconds: 60 },
+            { label: "second", seconds: 1 }
+        ];
+
+        for (const interval of intervals) {
+            const count = Math.floor(secondsPast / interval.seconds);
+
+            if (count >= 1) {
+                return `${count} ${interval.label}${count > 1 ? "s" : ""} ago`;
+            }
+        }
+
+        return "Just now";
+    },
+
+    livelyDateToFineValue(_date: Date, delayInMilliSeconds: number, cb: (v: string) => boolean | void) {
+        const date = new Date(_date.valueOf());
+        cb(DateHelper.dateToFineValue(date));
+        const interval = setInterval(() => {
+            date.setTime(date.getTime() + delayInMilliSeconds);
+            if (cb(DateHelper.dateToFineValue(date))) {
+                clearInterval(interval);
+            }
+        }, delayInMilliSeconds);
+    },
+
 }

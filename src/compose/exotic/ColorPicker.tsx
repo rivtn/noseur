@@ -47,13 +47,15 @@ export type ColorPickerAttributesRelays = {
 
 export interface ColorPickerManageRef {
     reset: () => void;
+    getColor: () => Color;
+    setColor: (color: Color) => void;
     dialogManageRef: () => DialogManageRef | null;
     popoverManageRef: () => PopoverManageRef | null;
-    toggle: (event: Event, target?: HTMLElement) => void;
+    toggle: (event: Event, target?: HTMLElement, colors?: Color[]) => void;
 }
 
 export interface ColorPickerProps extends ComponentBaseProps<HTMLDivElement, ColorPickerManageRef, ColorPickerAttributesRelays> {
-    colors: Color;
+    color: Color;
     alpha: number;
     autoFocus: boolean;
     modalVisible: boolean;
@@ -78,7 +80,7 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
     state: ColorPickerState = {
         alpha: this.props.alpha,
         modalVisible: this.props.modalVisible,
-        selectedColors: this.props.selectedColors ?? [this.props.colors ?? ColorHelper.hexToColor("#000000")]
+        selectedColors: this.props.selectedColors ?? [this.props.color ?? ColorHelper.hexToColor("#000000")]
     };
 
     dialogManageRef: DialogManageRef | null = {} as any;
@@ -97,18 +99,37 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
     componentDidMount() {
         ObjectHelper.resolveManageRef(this, {
             toggle: this.toggle,
-            reset: () => alert("RESET"),
             dialogManageRef: () => this.dialogManageRef,
+            getColor: () => this.state.selectedColors?.[0],
             popoverManageRef: () => this.popoverManageRef,
+            setColor: (color: Color) => {
+                this.setState({ selectedColors: [color] });
+            },
+            reset: () => {
+                this.setState({ selectedColors: this.props.selectedColors ?? [this.props.color ?? ColorHelper.hexToColor("#000000")] });
+            },
         });
     }
 
-    toggle(event: Event, target?: HTMLElement) {
+    componentDidUpdate(prevProps: Readonly<ColorPickerProps>, _: Readonly<ColorPickerState>) {
+        if (this.props.selectedColors !== prevProps.selectedColors || this.props.color !== prevProps.color || this.props.alpha !== prevProps.alpha) {
+            this.setState({ alpha: this.props.alpha, selectedColors: this.props.selectedColors ?? [this.props.color ?? ColorHelper.hexToColor("#000000")] });
+        }
+    }
+
+    toggle(event: Event, target?: HTMLElement, colors?: Color[]) {
+        const newState: any = {};
+        if (colors) {
+            newState.selectedColors = colors;
+            newState.alpha = colors?.[0]?.alpha;
+        }
         switch (this.props.type) {
             case ComponentRenderType.MODAL:
-                this.setState({ modalVisible: !this.state.modalVisible });
+                newState.modalVisible = !this.state.modalVisible;
+                this.setState(newState);
                 break;
             case ComponentRenderType.POPOVER:
+                if (colors) this.setState(newState);
                 this.popoverManageRef!.toggle(event, target);
                 break;
         }
@@ -147,7 +168,7 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
 
     reportOnSelectColor(color: Color) {
         const previousColor = this.state.selectedColors?.[0];
-        this.setState({ selectedColors: [color] });
+        this.setState({ selectedColors: [color], alpha: color.alpha });
         this.props.onSelectColor?.({ color, previousColor });
     }
 
@@ -420,28 +441,28 @@ class ColorPickerComponent extends React.Component<ColorPickerProps, ColorPicker
 
         return (<div style={{ display: "flex", width: "fit-content", flexDirection: "column" }}>
             <ColorMap style={{ width: "100%" }} mapWidth={"100%"} mapHeight={150} hex={selectedColor?.hex} />
-            <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.RAINBOW_HORIZONTAL} onSelectColor={async ({ color }) => {
+            <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.RAINBOW_HORIZONTAL} primaryColor={selectedColor.hex} onSelectColor={async ({ color }) => {
                 color.alpha = this.state.alpha;
                 this.reportOnSelectColor(color);
             }} />
-            <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.TRANSPARENT_HORIZONTAL} primaryColor={selectedColor.hex} onSelectColor={async ({ color }) => {
-                this.reportOnSelectColor({ ...this.state.selectedColors?.[0], alpha: color.alpha });
+            <ColorSlider style={{ width: "100%", margin: "5px 0px" }} orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.TRANSPARENT_HORIZONTAL} primaryColor={selectedColor.hex} alpha={this.props.alpha} onSelectColor={async ({ color }) => {
+                this.reportOnSelectColor({ ...this.state.selectedColors?.[0], alpha: +color.alpha.toFixed(2) });
             }} />
             <div style={{ display: "flex", width: "100%", marginTop: 5 }}>
                 <FormControl isFieldset label={<span style={{ fontSize: 12 }}>Hex</span>}>
-                    <TextInput style={{ flex: 1, width: 60, padding: "7px 5px", fontSize: 14 }} defaultValue={selectedColor.hex} />
+                    <TextInput style={{ flex: 1, width: 60, padding: "7px 5px", fontSize: 14 }} value={selectedColor.hex} />
                 </FormControl>
                 <FormControl isFieldset label={<span style={{ fontSize: 12 }}>R</span>}>
-                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} value={selectedColor.rgb.r} />
                 </FormControl>
                 <FormControl isFieldset label={<span style={{ fontSize: 12 }}>G</span>}>
-                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} value={selectedColor.rgb.g} />
                 </FormControl>
                 <FormControl isFieldset label={<span style={{ fontSize: 12 }}>B</span>}>
-                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"200"} />
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} value={selectedColor.rgb.b} />
                 </FormControl>
                 <FormControl isFieldset label={<span style={{ fontSize: 12 }}>A</span>}>
-                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} defaultValue={"100"} />
+                    <TextInput style={{ width: 40, padding: "7px 5px", fontSize: 14 }} value={selectedColor.alpha} />
                 </FormControl>
             </div>
             <ColorPalette style={{ width: "100%", marginTop: 10 }} grid={10} gtcSize={"1fr"} row={4} size={20} gap={3} palette={"Default"} attrsRelay={{ tile: { style: { borderRadius: 2 } } }} onSelectColor={({ color }) => {

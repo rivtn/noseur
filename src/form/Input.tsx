@@ -53,6 +53,7 @@ interface InputState {
     value: NoseurInputValue;
 };
 
+// TODO report onInputComplete only once if change
 class Input extends React.Component<InputProps, InputState> {
 
     public static defaultProps: Partial<InputProps> = {
@@ -95,6 +96,7 @@ class Input extends React.Component<InputProps, InputState> {
                 this.setState({ value }, () => {
                     if (!this.internalInputElement) return;
                     this.internalInputElement.value = value;
+                    !this.props.readOnly && this.props.onInputComplete && this.props.onInputComplete(value);
                 });
             },
         });
@@ -168,14 +170,14 @@ class Input extends React.Component<InputProps, InputState> {
     onBlur(event: React.FocusEvent<NoseurFormElement>) {
         this.props.onBlur && this.props.onBlur(event);
         if (this.props.completeInputOnEnterPressOnly) return;
-        this.props.onInputComplete && this.props.onInputComplete(event.target.value);
+        !this.props.readOnly && this.props.onInputComplete && this.props.onInputComplete(event.target.value);
     }
 
     onKeyUp(event: React.KeyboardEvent<NoseurFormElement>) {
         this.props.onKeyUp && this.props.onKeyUp(event);
         if (this.props.completeInputOnBlurOnly) return;
         const key = InputHelper.getKey(event);
-        if (key == 13) this.props.onInputComplete && this.props.onInputComplete((event.target as any).value);
+        if (key == 13) !this.props.readOnly && this.props.onInputComplete && this.props.onInputComplete((event.target as any).value);
     }
 
     render() {

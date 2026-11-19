@@ -13,7 +13,7 @@ import { ComponentBaseProps } from "../../core/ComponentBaseProps";
 export const ColorSliderGradient = {
     TRANSPARENT: "linear-gradient(to top, transparent, var(--primaryColor, #ffffff))",
     TRANSPARENT_VERTICAL: "linear-gradient(to top, transparent, var(--primaryColor, #ffffff))",
-    TRANSPARENT_HORIZONTAL: "linear-gradient(to left, transparent, var(--primaryColor, #ffffff))",
+    TRANSPARENT_HORIZONTAL: "linear-gradient(to right, transparent, var(--primaryColor, #ffffff))",
     RAINBOW: "linear-gradient(to bottom, red 0, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, red 100%)",
     RAINBOW_VERTICAL: "linear-gradient(to bottom, red 0, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, red 100%)",
     RAINBOW_HORIZONTAL: "linear-gradient(to right, red 0, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, red 100%)",
@@ -28,24 +28,26 @@ export interface ColorSliderManageRef extends BareInputManageRef<Color> {
 
 export interface ColorSliderProps extends ComponentBaseProps<HTMLDivElement, ColorSliderManageRef, ColorSliderAttributesRelays> {
     hue: string;
+    alpha: number;
     primaryColor: string;
     reportOnDrag: boolean;
     colorGradient: string;
     allowedOverflow: number;
     orientation: Orientation.VERTICAL | Orientation.HORIZONTAL;
-    
+
     onSelectColor: ColorEventHandler;
 }
 
 interface ColorSliderState {
+    values: number[];
     primaryColor: string;
 }
 
 class ColorSliderComponent extends React.Component<ColorSliderProps, ColorSliderState> {
 
     public static defaultProps: Partial<ColorSliderProps> = {
-        hue: "#ff0000",
         attrsRelay: {},
+        hue: "#ff0000",
         allowedOverflow: 5,
         primaryColor: "#ffffff",
         orientation: Orientation.VERTICAL,
@@ -53,6 +55,7 @@ class ColorSliderComponent extends React.Component<ColorSliderProps, ColorSlider
     };
 
     state: ColorSliderState = {
+        values: [],
         primaryColor: this.props.primaryColor,
     };
 
@@ -63,7 +66,7 @@ class ColorSliderComponent extends React.Component<ColorSliderProps, ColorSlider
     constructor(props: ColorSliderProps) {
         super(props);
 
-        this.alpha = 1;
+        this.alpha = this.props.alpha ?? 1;
         this.hsb = ColorHelper.hexToHsb(this.props.hue);
 
         this.onChange = this.onChange.bind(this);
@@ -75,12 +78,15 @@ class ColorSliderComponent extends React.Component<ColorSliderProps, ColorSlider
             this.hsb = (this.props.hue !== prevProps.hue ? ColorHelper.hexToHsb(this.props.hue) : this.hsb);
             this.setState({ primaryColor: this.props.primaryColor });
         }
+        if (this.props.alpha !== prevProps.alpha) {
+            this.alpha = this.props.alpha;
+        }
     }
 
     onChange(evt: any) {
         this.props.onChange && this.props.onChange(evt);
         const value = evt.value + this.props.allowedOverflow;
-        this.alpha = (value / 100);
+        this.alpha = Math.min((value / 100), 1);
     }
 
     async onHandleDrag(evt?: DragSensorEvent) {
@@ -100,7 +106,12 @@ class ColorSliderComponent extends React.Component<ColorSliderProps, ColorSlider
     }
 
     renderRange() {
-        return (<div className={Classname.build("noseur-color-slider-range", `noseur-color-slider-range-${this.props.orientation}`)}/>);
+        return (<div className={Classname.build("noseur-color-slider-range", `noseur-color-slider-range-${this.props.orientation}`)} ref={(e: any) => {
+            if (!e || this.state.values.length > 0) return;
+            const rgba = ColorHelper.hexToRgba(this.state.primaryColor); rgba.a = this.alpha;
+            const colorPercentage = ColorHelper.findColorPercentageFromElement(e, (this.props.alpha ? this.props.alpha : rgba), this.props.orientation) ?? {};
+            this.setState({ values: [colorPercentage.percentage!] });
+        }} />);
     }
 
     render() {
@@ -124,21 +135,20 @@ class ColorSliderComponent extends React.Component<ColorSliderProps, ColorSlider
             }
         };
 
-        return (<Slider {...this.props.attrsRelay.sliderProps} range={range} onChange={this.onChange}
-                orientation={this.props.orientation} id={this.props.id} key={this.props.key} className={className} style={style}
-                ref={(e: any) => {
-                    if (e) {
-                        this.cachedAttrs.rect = e.getBoundingClientRect();
-                        this.cachedAttrs.page = (this.props.orientation === Orientation.HORIZONTAL ? "pageX" : "pageY");
-                        this.cachedAttrs.topLeft = (this.props.orientation === Orientation.HORIZONTAL ? "left" : "top");
-                        this.cachedAttrs.scrollXy = (this.props.orientation === Orientation.HORIZONTAL ? "scrollX" : "scrollY");
-                        this.cachedAttrs.scrollTl = (this.props.orientation === Orientation.HORIZONTAL ? "scrollLeft" : "scrollTop");
-                    }
-                }}/>);
+        return (<Slider {...this.props.attrsRelay.sliderProps} range={range} onChange={this.onChange} value={this.state.values}
+            orientation={this.props.orientation} id={this.props.id} key={this.props.key} className={className} style={style}
+            ref={(e: any) => {
+                if (!e) return;
+                this.cachedAttrs.rect = e.getBoundingClientRect();
+                this.cachedAttrs.page = (this.props.orientation === Orientation.HORIZONTAL ? "pageX" : "pageY");
+                this.cachedAttrs.topLeft = (this.props.orientation === Orientation.HORIZONTAL ? "left" : "top");
+                this.cachedAttrs.scrollXy = (this.props.orientation === Orientation.HORIZONTAL ? "scrollX" : "scrollY");
+                this.cachedAttrs.scrollTl = (this.props.orientation === Orientation.HORIZONTAL ? "scrollLeft" : "scrollTop");
+            }} />);
     };
 
 }
 
-export const ColorSlider  = ({ ref, ...props }: Partial<ColorSliderProps>) => (
+export const ColorSlider = ({ ref, ...props }: Partial<ColorSliderProps>) => (
     <ColorSliderComponent {...props} forwardRef={ref} />
 );

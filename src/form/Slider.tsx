@@ -84,6 +84,12 @@ class SliderComponent extends React.Component<SliderProps, SliderState> {
         this.componentUnmounted = true;
     }
 
+    componentDidUpdate(prevProps: Readonly<SliderProps>, _: Readonly<SliderState>) {
+        if (this.props.value !== prevProps.value) {
+            this.setState({ values: (typeof this.props.value === "number" ? [this.props.value] : this.props.value) ?? [0] });
+        }
+    }
+
     componentWillUnmount() {
         if (!this.componentUnmounted) return;
         this.componentUnmounted = true;
@@ -128,7 +134,7 @@ class SliderComponent extends React.Component<SliderProps, SliderState> {
         const compoundWidthOrHeight = (this.props.orientation === Orientation.HORIZONTAL ? this.compoundRefRect?.width : this.compoundRefRect?.height);
         const compoundLeftOrTop = (this.props.orientation === Orientation.HORIZONTAL ? this.compoundRefRect?.left : this.compoundRefRect?.top);
         const value = evt![this.props.orientation === Orientation.HORIZONTAL ? "left" : "top"] - (compoundLeftOrTop ?? 0);
-        const percentageValue = ObjectHelper.round((value / (compoundWidthOrHeight ?? 1)) * 100);
+        const percentageValue = Math.min(100, ObjectHelper.round((value / (compoundWidthOrHeight ?? 1)) * 100));
         const finalValue = (this.props.inverse && values.length === 1 ? (100 - percentageValue) : percentageValue);
         if (values[index] === value) return;
         values[index] = finalValue;

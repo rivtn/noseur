@@ -21,6 +21,7 @@ import {
     Calendar,
     GridView,
     DialogProps,
+    ColorHelper,
 } from "@rivtn/noseur";
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
     const chatSenderRef = React.useRef<any>(null);
     const [state, setState] = React.useState(false);
     const inputManageRef = React.useRef<any>(null);
-    const [states, setStates] = React.useState<any>({});
+    const [states, setStates] = React.useState<any>({ csHex1: "#ff00cc" });
     const toastManageRef = React.useRef<ToastManageRef>(null);
     const panelManageRef = React.useRef<PanelManageRef>(null);
     const tabPaneManageRef = React.useRef<TabPaneManageRef>(null);
@@ -207,16 +208,19 @@ function App() {
                 </div> */}
                 <div style={{ margin: 30 }}>
                     <Button text="Modal ColorPicker" onClick={(e: any) => refs.current["modal-colorpicker1"].toggle(e)} />
-                    <ColorPicker type={ComponentRenderType.MODAL}  manageRef={(e: any) => refs.current["modal-colorpicker1"] = e} />
+                    <ColorPicker type={ComponentRenderType.MODAL} manageRef={(e: any) => refs.current["modal-colorpicker1"] = e} />
                     <br /><br />
                     <br /><br />
                     <Button text="Popover ColorPicker" onClick={(e: any) => refs.current["popover-colorpicker1"].toggle(e)} />
-                    <ColorPicker type={ComponentRenderType.POPOVER}  manageRef={(e: any) => refs.current["popover-colorpicker1"] = e} onSelectColor={(e) => {
-                        console.log("SELECTED", e)
+                    <ColorPicker type={ComponentRenderType.POPOVER} color={ColorHelper.hexToColor(states.csHex1)} alpha={states.csAlpha1}  manageRef={(e: any) => refs.current["popover-colorpicker1"] = e} onSelectColor={(e) => {
+                        setStates({ ...states, csHex1: e.color.hex, csAlpha1: e.color.alpha, });
+                        console.log("HEREE", e.color);
                     }} />
-                    <br/><br/>
-                    <br/><br/>
-                    <ColorPicker />
+                    <br /><br />
+                    <br /><br />
+                    <ColorPicker color={ColorHelper.hexToColor(states.csHex1)} alpha={states.csAlpha1} manageRef={(e: any) => refs.current["colorpicker1"] = e} onSelectColor={(e) => {
+                        setStates({ ...states, csHex1: e.color.hex, csAlpha1: e.color.alpha });
+                    }} />
 
                     {/* <div style={{ display: "flex", border: "1px solid red", width: "fit-content", flexDirection: "column" }}>
                         <ColorMap style={{ width: "100%" }} mapWidth={"100%"} mapHeight={150} hex={states.csHex1} />
@@ -257,7 +261,7 @@ function App() {
                     <br />
                     <ColorSlider colorGradient={ColorSliderGradient.TRANSPARENT} primaryColor={states.csHex1} />
                     <br />
-                    <div style={{ width: 50, height: 50, background: states.csHex1, border: "1px solid red" }} />
+                    <div style={{ width: 50, height: 50, background: ColorHelper.hexWithAlpha(states.csHex1, states.csAlpha1), border: "1px solid red" }} />
                     <ColorSlider orientation={Orientation.HORIZONTAL} colorGradient={ColorSliderGradient.RAINBOW_HORIZONTAL} onSelectColor={async ({ color }) => {
                         setStates({ ...states, csHex1: color.hex, });
                     }} />
